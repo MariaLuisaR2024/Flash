@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrstuudos - Flashcards de Matemática</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <div class="container flashcard-page">
+        <header>
+            <img src="logo.png" alt="Mrstuudos Logo" class="logo clickable-logo">
+            <nav class="user-profile-nav" style="display: none;">
+                <!-- Perfil do usuário -->
+                <p>@yourf1girl</p>
+                <h3>Últimas 3 Matérias Estudadas:</h3>
+                <ul>
+                    <li>Biologia (1h)</li>
+                    <li>Matemática (1h)</li>
+                    <li>Física (1h)</li>
+                </ul>
+                <button class="btn-secondary close-profile">Fechar</button>
+            </nav>
+        </header>
+        <main class="flashcard-area">
+            <h2>Flashcards de Matemática</h2>
+
+            <div class="generation-controls">
+                <input type="text" id="topicInput" placeholder="Digite um tópico para novos flashcards (ex: fotossíntese)" class="text-input">
+                <button id="generateFlashcardsButton" class="btn-secondary">Gerar Novos Flashcards</button>
+                <div id="loadingIndicator" class="loading-spinner" style="display: none;"></div>
+            </div>
+
+            <div class="flashcard-container">
+                <div class="flashcard">
+                    <div class="flashcard-front">
+                        <h3>Pergunta do Flashcard</h3>
+                    </div>
+                    <div class="flashcard-back">
+                        <p>Resposta do Flashcard</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flashcard-navigation">
+                <button id="prevFlashcard" class="btn-navigation">&lt;&lt; Anterior</button>
+                <button id="flipFlashcard" class="btn-navigation">Virar</button>
+                <button id="nextFlashcard" class="btn-navigation">Próximo &gt;&gt;</button>
+            </div>
+            <p class="flashcard-counter">Flashcard <span id="currentFlashcardIndex">1</span> de <span id="totalFlashcards">5</span></p>
+        </main>
+        <footer>
+            <p>&copy;2025 Flashcards vestibulares • Por M Luisa.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

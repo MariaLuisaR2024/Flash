@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrstuudos - Escolha sua Matéria</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon-192.png">
+</head>
+<body>
+    <div class="container materials-page">
+        <header>
+            <!-- A logo aqui é clicável para o perfil do usuário -->
+            <img src="logo.png" alt="Mrstuudos Logo" class="logo clickable-logo">
+            <nav class="user-profile-nav" style="display: none;">
+                <!-- Este é o painel do perfil do usuário, inicialmente escondido -->
+                <p>@yourf1girl</p>
+                <h3>Últimas 3 Matérias Estudadas:</h3>
+                <ul>
+                    <li>Biologia (1h)</li>
+                    <li>Matemática (1h)</li>
+                    <li>Física (1h)</li>
+                </ul>
+                <button class="btn-secondary close-profile">Fechar</button>
+            </nav>
+        </header>
+        <main class="materials-grid">
+            <h2>Escolha a Matéria para Estudar</h2>
+            <div class="material-card" data-subject="biologia">
+                <h3>Biologia</h3>
+                <img src="biologia_icon.png" alt="Ícone Biologia">
+                <p>Questões e teoria biológicas.</p>
+            </div>
+            <div class="material-card" data-subject="matematica">
+                <h3>Matemática</h3>
+                <img src="matematica_icon.png" alt="Ícone Matemática">
+                <p>Formulas e perguntas.</p>
+            </div>
+            <div class="material-card" data-subject="fisica">
+                <h3>Física</h3>
+                <img src="fisica_icon.png" alt="Ícone Física">
+                <p>Formulas, perguntas e teoria.</p>
+            </div>
+            <div class="material-card" data-subject="vestibulares">
+                <h3>Vestibulares</h3>
+                <img src="fuvest.png" alt="Ícone Vestibulares">
+                <p> Estudos preparatórios.</p>
+            </div>
+            <!-- Você pode adicionar mais cards de matérias aqui, seguindo o mesmo padrão -->
+        </main>
+        <footer>
+            <p>&copy; 2025 Flashcards vestibulares • Por M Luisa.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

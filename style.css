@@ -1,0 +1,417 @@
+
+:root {
+    --primary-blue: #007bff; 
+    --secondary-blue: #6c757d; 
+    --accent-red: #dc3545; 
+    --light-pastel: #e9ecef; 
+    --dark-text: #1b2024;
+    --light-text: #f8f9fa;
+    --gradient-f1-bg: linear-gradient(135deg, #FF0000 0%, #8B0000 100%); 
+    --gradient-card-bg: linear-gradient(45deg, var(--light-pastel), var(--secondary-blue));
+    --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-pastel);
+    color: var(--dark-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+    background-image: url('ferrari.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; 
+    position: relative; 
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: -1;
+}
+
+
+.container {
+    background-color: rgba(255, 255, 255, 0.9); 
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-medium);
+    text-align: center;
+    max-width: 900px; 
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh; 
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--light-pastel);
+    position: relative; 
+}
+
+.logo {
+    width: 80px; 
+    height: auto;
+    cursor: pointer; 
+    border-radius: 50%; 
+    box-shadow: var(--shadow-light);
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+
+.user-profile-nav {
+    position: absolute;
+    top: 100px; /* Ajuste conforme necessário para ficar abaixo da logo */
+    left: 20px;
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-medium);
+    z-index: 10;
+    text-align: left;
+    min-width: 250px;
+}
+
+.user-profile-nav h3 {
+    color: var(--light-text);
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.user-profile-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-profile-nav li {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-profile-nav li:last-child {
+    border-bottom: none;
+}
+
+.user-profile-nav .close-profile {
+    margin-top: 15px;
+    background-color: var(--accent-red);
+    color: var(--light-text);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user-profile-nav .close-profile:hover {
+    background-color: darken(var(--accent-red), 10%); /* Exemplo de darken, precisa de Sass/Less ou mudar para uma cor específica */
+}
+
+.btn-primary {
+    background-color: var(--accent-red); 
+    color: var(--light-text);
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 50px; 
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    position: relative; 
+    overflow: hidden; 
+}
+
+.btn-primary:hover {
+    background-color: #c82333; 
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-navigation {
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-navigation:hover {
+    background-color: #0056b3; 
+    transform: translateY(-2px);
+}
+.butterfly {
+    position: absolute;
+    width: 40px;
+    height: auto;
+    transition: all 0.5s ease-out;
+    pointer-events: none; 
+    z-index: -1; 
+}
+
+.butterfly-1 {
+    top: 5px;
+    left: -20px; 
+}
+
+.butterfly-2 {
+    bottom: 5px;
+    right: -20px; 
+}
+.btn-primary:hover .butterfly-1 {
+    left: 80%; /* Move para a direita */
+    top: -10px;
+    transform: rotate(15deg);
+}
+.btn-primary:hover .butterfly-2 {
+    right: 80%; /* Move para a esquerda */
+    bottom: -10px;
+    transform: rotate(-15deg);
+}
+
+.welcome-page, .materials-page, .flashcard-page {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.welcome-content h1 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--accent-red);
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content p {
+    font-size: 1.1em;
+    color: var(--dark-text);
+    margin-bottom: 20px;
+}
+
+/* Materiais Grid */
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    padding: 30px 0;
+    flex-grow: 1;
+}
+
+.materials-grid h2 {
+    grid-column: 1 / -1; 
+    color: var(--primary-blue);
+    font-family: 'Oswald', sans-serif;
+    margin-bottom: 20px;
+    font-size: 2.2em;
+}
+
+.material-card {
+    background: var(--gradient-card-bg); 
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: var(--dark-text);
+}
+
+.material-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-medium);
+}
+
+.material-card h3 {
+    color: var(--accent-red);
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 1.6em;
+    font-family: 'Oswald', sans-serif;
+}
+
+.material-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.material-card p {
+    font-size: 0.95em;
+    color: var(--dark-text);
+}
+
+
+/* Flashcard Area */
+.flashcard-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.flashcard-area h2 {
+    color: var(--primary-blue);
+    font-family: 'Oswald', sans-serif;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+.flashcard-container {
+    perspective: 1000px; 
+    width: 100%;
+    max-width: 600px;
+    height: 300px; 
+    margin-bottom: 30px;
+}
+
+.flashcard {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+    box-shadow: var(--shadow-medium);
+    border-radius: 15px;
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; 
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    box-sizing: border-box; 
+}
+
+.flashcard-front {
+    background-color: var(--light-pastel);
+    color: var(--dark-text);
+    border: 3px solid var(--primary-blue);
+}
+
+.flashcard-front h3 {
+    font-size: 1.8em;
+    color: var(--primary-blue);
+}
+
+.flashcard-back {
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    transform: rotateY(180deg); 
+    border: 3px solid var(--accent-red);
+}
+
+.flashcard-back p {
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+.flashcard-navigation {
+    margin-top: 20px;
+}
+
+.flashcard-counter {
+    font-size: 1em;
+    color: var(--secondary-blue);
+    margin-top: 15px;
+}
+
+/* Footer */
+footer {
+    margin-top: auto; 
+    padding-top: 20px;
+    border-top: 1px solid var(--light-pastel);
+    color: var(--secondary-blue);
+    font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .welcome-content h1 {
+        font-size: 2em;
+    }
+
+    .btn-primary {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+
+    .materials-grid {
+        grid-template-columns: 1fr; 
+    }
+
+    .flashcard-container {
+        height: 250px;
+    }
+
+    .flashcard-front h3 {
+        font-size: 1.5em;
+    }
+
+    .flashcard-back p {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 60px;
+    }
+
+    .welcome-content h1 {
+        font-size: 1.5em;
+    }
+
+    .btn-navigation {
+        margin: 5px;
+        padding: 8px 15px;
+    }
+}
