@@ -1,6 +1,6 @@
 {
-  "name": "Flashcards",
-  "short_name": "Mrstuudos",
+  "name": "Mrstuudos Flashcards",
+  "short_name": "Flashcards",
   "description": "flashcards para estudo.",
   "start_url": "/index.html",
   "display": "standalone",

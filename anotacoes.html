@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards Mrstuudos</title>
+    <title>Mrstuudos - Minhas Anotações</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png">
+   <!-- Inclua o script TinyMCE aqui, ADICIONANDO SUA CHAVE DE API -->
+    <script src="https://cdn.tiny.cloud/1/mngzc586df1l55tkhtpex8y2xwl1jy5a5wcjtio2oiinzez2/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body>
-    <div class="container materials-page">
+    <div class="container notes-page-container">
         <header>
             <a href="anotacoes.html" class="notes-icon-link">
                 <svg class="notes-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -29,28 +31,29 @@
                 <button class="btn-secondary close-profile">Fechar</button>
             </nav>
         </header>
-        <main class="materials-grid">
-            <h2>Escolha a Matéria para Estudar</h2>
-            <div class="material-card" data-subject="biologia">
-                <h3>Biologia</h3>
-                <img src="biologia_icon.png" alt="Ícone Biologia">
-                <p>Estude a vida em suas diversas formas.</p>
+        <main class="notes-main-content">
+            <h2>Minhas Anotações</h2>
+
+            <div class="subject-select-container">
+                <label for="subjectSelect">Selecionar Matéria:</label>
+                <select id="subjectSelect" class="text-input">
+                    <option value="biologia">Biologia</option>
+                    <option value="matematica">Matemática</option>
+                    <option value="fisica">Física</option>
+                    <option value="vestibulares">Vestibulares</option>
+                    <!-- Adicione mais opções conforme suas matérias -->
+                </select>
             </div>
-            <div class="material-card" data-subject="matematica">
-                <h3>Matemática</h3>
-                <img src="matematica_icon.png" alt="Ícone Matemática">
-                <p>Desvende os segredos dos números.</p>
+
+            <div class="notes-area">
+                <h3>Anotações para <span id="currentNotesSubject">Biologia</span></h3>
+                <!-- Div para o editor TinyMCE -->
+                <div id="tinymce-editor"></div>
+                
+                <button id="saveNotesButton" class="btn-secondary">Salvar Anotações</button>
+                <p id="notesStatus" class="notes-status-message"></p>
             </div>
-            <div class="material-card" data-subject="fisica">
-                <h3>Física</h3>
-                <img src="fisica_icon.png" alt="Ícone Física">
-                <p>Compreenda as leis do universo.</p>
-            </div>
-            <div class="material-card" data-subject="vestibulares">
-                <h3>Vestibulares</h3>
-                <img src="fuvest.png" alt="Ícone Vestibulares">
-                <p>Prepare-se para o seu futuro.</p>
-            </div>
+
         </main>
         <footer>
             <p>&copy; 2025 Flashcards vestibulares • Por M Luisa.</p>

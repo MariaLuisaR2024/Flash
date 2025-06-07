@@ -3,26 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mrstuudos - Flashcards</title>
+    <title>Mrstuudos - Início</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="icon-192.png"> 
-    <link rel="manifest" href="manifest.json"> </head>
+    <link rel="icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
+    <!-- Adição dos SDKs do Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variáveis globais para o Firebase (serão preenchidas no script.js)
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.currentUserId = null;
+
+        // Configuração do Firebase (fornecida pelo ambiente Canvas ou definida aqui se for local)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "YOUR_FIREBASE_API_KEY", // Substitua pela sua chave Firebase, se rodando localmente fora do Canvas
+            authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+            projectId: "YOUR_FIREBASE_PROJECT_ID",
+            storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+            appId: "YOUR_FIREBASE_APP_ID"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Usado para caminhos no Firestore
+
+        // Inicializa o Firebase e a autenticação
+        async function initFirebaseAndAuth() {
+            if (!window.firebaseApp) {
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.db = getFirestore(window.firebaseApp);
+                window.auth = getAuth(window.firebaseApp);
+
+                onAuthStateChanged(window.auth, async (user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        console.log("Usuário autenticado:", user.uid);
+                    } else {
+                        window.currentUserId = null;
+                        console.log("Usuário não autenticado.");
+                    }
+                    // Atualiza a UI com o ID do usuário
+                    const userIdDisplay = document.getElementById('userIdDisplay');
+                    if (userIdDisplay) {
+                        userIdDisplay.textContent = window.currentUserId ? `@${window.currentUserId}` : 'Usuário (offline)';
+                    }
+                });
+
+                if (initialAuthToken) {
+                    try {
+                        await signInWithCustomToken(window.auth, initialAuthToken);
+                        console.log("Autenticado com token customizado.");
+                    } catch (error) {
+                        console.error("Erro na autenticação com token customizado:", error);
+                        await signInAnonymously(window.auth); // Fallback para anônimo
+                    }
+                } else {
+                    await signInAnonymously(window.auth);
+                    console.log("Autenticado anonimamente.");
+                }
+            }
+        }
+
+        // Chama a inicialização do Firebase quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', initFirebaseAndAuth);
+    </script>
+</head>
 <body>
     <div class="container welcome-page">
         <header>
-            <img src="logo.png" alt="Mrstuudos Logo" class="logo">
+            <img src="logo.png" alt="Mrstuudos Logo" class="logo clickable-logo">
+            <div class="user-info-display">
+                <span id="userIdDisplay">Carregando...</span>
+            </div>
+            <nav class="user-profile-nav" style="display: none;">
+                <p><span id="profileUserIdDisplay"></span></p>
+                <h3>Últimas 3 Matérias Estudadas:</h3>
+                <ul>
+                    <li>Biologia (1h)</li>
+                    <li>Matemática (1h)</li>
+                    <li>Física (1h)</li>
+                </ul>
+                <button class="btn-secondary close-profile">Fechar</button>
+            </nav>
         </header>
         <main class="welcome-content">
             <h1>Flashcards Mrstuudos</h1>
             <p>Mood memorize • by Malu</p>
             <button id="startButton" class="btn-primary">
                 Iniciar
-                <img src="borboleta1.png" alt="Borboleta 1" class="butterfly butterfly-1">
-                <img src="borboleta2.png" alt="Borboleta 2" class="butterfly butterfly-2">
+                <img src="borboleta1.png" alt="Borboleta Decorativa" class="butterfly butterfly-left">
+                <img src="borboleta2.png" alt="Borboleta Decorativa" class="butterfly butterfly-right">
             </button>
         </main>
         <footer>
-            <p>&copy; 2025 Flashcards vestibulares • Por M Luisa</p>
+            <p>&copy; 2025 Flashcards vestibulares • Por M Luisa.</p>
         </footer>
     </div>
 

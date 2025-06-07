@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', () => {
                 const subject = card.dataset.subject; // Pega o valor do atributo data-subject (ex: "biologia")
                 if (subject) {
-                    window.location.href = `${subject}.html`; // Redireciona para a página da matéria correspondente (ex: biologia.html)
+                    window.location.href = `${subject}.html`; // Redireciona para a página da matéria correspondente
                 }
             });
         });
@@ -37,13 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentFlashcardIndexSpan = document.getElementById('currentFlashcardIndex');
     const totalFlashcardsSpan = document.getElementById('totalFlashcards');
 
-    // Elementos para a nova funcionalidade de geração de flashcards
+    // Elementos para a funcionalidade de geração de flashcards
     const topicInput = document.getElementById('topicInput');
     const generateFlashcardsButton = document.getElementById('generateFlashcardsButton');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
+    // Elementos para a funcionalidade de Anotações/Bloco de Notas (agora com TinyMCE)
+    const notesInputTarget = document.getElementById('tinymce-editor'); // Alvo para o TinyMCE
+    const saveNotesButton = document.getElementById('saveNotesButton');
+    const notesStatus = document.getElementById('notesStatus');
+    const subjectSelect = document.getElementById('subjectSelect'); // Dropdown de seleção de matéria em anotacoes.html
+    const currentNotesSubjectDisplay = document.getElementById('currentNotesSubject'); // Para exibir o nome da matéria nas anotações
+
+    let tinyMCEEditorInstance = null; // Variável para armazenar a instância do TinyMCE
+
     // Dados dos flashcards (você pode carregar isso de um JSON ou API em um app mais complexo)
-    let flashcardsData = [ // Mudei para 'let' para poder ser reatribuído
+    let flashcardsData = [
         // Flashcards de Biologia (Exemplo inicial)
         { question: "O que é mitose?", answer: "A mitose é um processo de divisão celular em que uma célula-mãe se divide em duas células-filhas geneticamente idênticas." },
         { question: "Qual a função do cloroplasto?", answer: "O cloroplasto é a organela responsável pela fotossíntese nas células vegetais." },
@@ -93,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let chatHistory = [];
         const prompt = `Gere 5 flashcards de pergunta e resposta sobre o tópico: "${topic}". Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves "question" e "answer". Certifique-se de que a resposta seja APENAS o JSON válido.`;
-
+        
         chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
+        
         const payload = {
             contents: chatHistory,
             generationConfig: {
@@ -114,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const apiKey = "AIzaSyDVU4bicBfIf1UV85vBS6mEu9WMVyhCF7U"; // <-- COLE SUA CHAVE DE API NESTE LUGAR!
+        const apiKey = "AIzaSyDVU4bicBfIf1UV85vBS6mEu9WMVyhCF7U"; // <-- COLE SUA CHAVE DE API AQUI para rodar localmente!
         // No ambiente Canvas, você deixaria assim: const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -125,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
 
-            // Verifica se a resposta HTTP foi OK
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Erro de rede ou API: ${response.status} - ${errorText}`);
@@ -139,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jsonText = result.candidates[0].content.parts[0].text;
                 const newFlashcards = JSON.parse(jsonText);
 
-                // Valida a estrutura dos flashcards
                 if (Array.isArray(newFlashcards) && newFlashcards.every(fc => typeof fc.question === 'string' && typeof fc.answer === 'string')) {
                     flashcardsData = newFlashcards; // Substitui os flashcards existentes
                     currentFlashcard = 0; // Volta para o primeiro flashcard
@@ -155,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Erro ao chamar a API do Gemini:", error);
-            // Mensagem de erro mais útil para o usuário
             alert(`Ocorreu um erro ao gerar os flashcards: ${error.message}. Verifique sua conexão ou tente novamente com um tópico mais simples.`);
         } finally {
             loadingIndicator.style.display = 'none'; // Esconde o spinner
@@ -163,58 +169,162 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Verifica se os elementos do flashcard existem antes de adicionar event listeners
     if (flashcardElement && flipButton && prevButton && nextButton) {
-        // Inicializa o primeiro flashcard
-        updateFlashcardDisplay();
+        updateFlashcardDisplay(); // Inicializa o primeiro flashcard
 
-        // Evento para virar o flashcard
         flipButton.addEventListener('click', () => {
-            flashcardElement.classList.toggle('flipped'); // Adiciona ou remove a classe 'flipped'
+            flashcardElement.classList.toggle('flipped');
         });
 
-        // Evento para o próximo flashcard
         nextButton.addEventListener('click', () => {
             if (flashcardsData.length > 0) {
-                currentFlashcard = (currentFlashcard + 1) % flashcardsData.length; // Cicla pelos flashcards
+                currentFlashcard = (currentFlashcard + 1) % flashcardsData.length;
                 updateFlashcardDisplay();
             }
         });
 
-        // Evento para o flashcard anterior
         prevButton.addEventListener('click', () => {
-                if (flashcardsData.length > 0) {
-                    currentFlashcard = (currentFlashcard - 1 + flashcardsData.length) % flashcardsData.length; // Cicla de volta
-                    updateFlashcardDisplay();
-                }
-            });
+            if (flashcardsData.length > 0) {
+                currentFlashcard = (currentFlashcard - 1 + flashcardsData.length) % flashcardsData.length;
+                updateFlashcardDisplay();
+            }
+        });
+    }
+
+    // Adiciona o evento de clique ao botão de gerar flashcards
+    if (generateFlashcardsButton && topicInput) {
+        generateFlashcardsButton.addEventListener('click', () => {
+            const topic = topicInput.value.trim();
+            if (topic) {
+                generateFlashcards(topic);
+            } else {
+                alert("Por favor, digite um tópico para gerar flashcards.");
+            }
+        });
+    }
+
+    // Lógica da logo clicável e perfil do usuário (em todas as páginas com a logo clicável)
+    const clickableLogo = document.querySelector('.clickable-logo');
+    const userProfileNav = document.querySelector('.user-profile-nav');
+    const closeProfileButton = document.querySelector('.close-profile');
+    
+    // O perfil do usuário agora é estático.
+    const userInfoClickableArea = clickableLogo; 
+
+    if (userInfoClickableArea && userProfileNav) {
+        userInfoClickableArea.addEventListener('click', () => {
+            userProfileNav.style.display = userProfileNav.style.display === 'none' ? 'block' : 'none'; // 'block' para display padrão
+        });
+    }
+
+    if (closeProfileButton && userProfileNav) {
+        closeProfileButton.addEventListener('click', () => {
+            userProfileNav.style.display = 'none';
+        });
+    }
+
+    // --- FUNÇÕES DE ANOTAÇÕES COM LOCAL STORAGE E TINYMCE ---
+
+    // Inicializa o TinyMCE se o elemento alvo estiver presente (ou seja, estamos em anotacoes.html)
+    if (notesInputTarget) {
+        tinymce.init({
+            selector: '#tinymce-editor', // O ID do div que o TinyMCE vai transformar
+            plugins: 'lists link image code autoresize fullscreen', // Plugins úteis para formatação
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link code | fullscreen',
+            min_height: 300, // Altura mínima do editor
+            setup: function (editor) {
+                editor.on('init', function () {
+                    console.log('TinyMCE initialized.');
+                    tinyMCEEditorInstance = editor; // Armazena a instância do editor
+
+                    // Carrega as anotações assim que o editor estiver pronto e a matéria selecionada
+                    if (subjectSelect) {
+                        const initialSubject = subjectSelect.value;
+                        if (currentNotesSubjectDisplay) {
+                            currentNotesSubjectDisplay.textContent = subjectSelect.options[subjectSelect.selectedIndex].text;
+                        }
+                        loadNotesFromLocalStorage(initialSubject);
+
+                        // Adiciona um listener para quando a seleção da matéria muda
+                        subjectSelect.addEventListener('change', () => {
+                            const selectedSubject = subjectSelect.value;
+                            loadNotesFromLocalStorage(selectedSubject);
+                            // Atualiza o título do notes area
+                            if (currentNotesSubjectDisplay) {
+                                currentNotesSubjectDisplay.textContent = subjectSelect.options[subjectSelect.selectedIndex].text;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+
+    // Função para carregar anotações do Local Storage
+    function loadNotesFromLocalStorage(subject) {
+        // Verifica se o editor TinyMCE está pronto
+        if (!tinyMCEEditorInstance || !notesStatus) {
+            console.log("TinyMCE editor ou status de notas não prontos para carregar.");
+            return;
         }
 
-        // Adiciona o evento de clique ao botão de gerar flashcards
-        if (generateFlashcardsButton && topicInput) {
-            generateFlashcardsButton.addEventListener('click', () => {
-                const topic = topicInput.value.trim();
-                if (topic) {
-                    generateFlashcards(topic);
-                } else {
-                    alert("Por favor, digite um tópico para gerar flashcards.");
-                }
-            });
+        const storageKey = `mrstuudos_notes_${subject}`;
+        const savedNotes = localStorage.getItem(storageKey);
+
+        if (savedNotes) {
+            tinyMCEEditorInstance.setContent(savedNotes); // Define o conteúdo do editor
+            notesStatus.textContent = `Anotações carregadas para ${subject}!`;
+            notesStatus.style.color = "green";
+        } else {
+            tinyMCEEditorInstance.setContent(""); // Limpa o editor
+            notesStatus.textContent = `Nenhuma anotação salva para ${subject} ainda.`;
+            notesStatus.style.color = "orange";
+        }
+        // Limpa a mensagem de status após alguns segundos
+        setTimeout(() => {
+            notesStatus.textContent = "";
+        }, 3000);
+    }
+
+    // Função para salvar anotações no Local Storage
+    function saveNotesToLocalStorage(subject) {
+        // Verifica se o editor TinyMCE está pronto
+        if (!tinyMCEEditorInstance || !notesStatus || !saveNotesButton) {
+            console.log("TinyMCE editor ou status de notas não prontos para salvar.");
+            return;
         }
 
-        // Lógica da logo clicável e perfil do usuário (em todas as páginas com a logo clicável)
-        const clickableLogo = document.querySelector('.clickable-logo');
-        const userProfileNav = document.querySelector('.user-profile-nav');
-        const closeProfileButton = document.querySelector('.close-profile');
+        const storageKey = `mrstuudos_notes_${subject}`;
+        const notesContent = tinyMCEEditorInstance.getContent(); // Pega o conteúdo HTML do editor
+        
+        notesStatus.textContent = "Salvando...";
+        notesStatus.style.color = "gray";
+        saveNotesButton.disabled = true; // Desabilita o botão enquanto salva
 
-        if (clickableLogo && userProfileNav) {
-            clickableLogo.addEventListener('click', () => {
-                userProfileNav.style.display = userProfileNav.style.display === 'none' ? '' : 'none'; // Use '' para display padrão (block ou flex)
-            });
+        try {
+            localStorage.setItem(storageKey, notesContent);
+            notesStatus.textContent = "Anotações salvas com sucesso!";
+            notesStatus.style.color = "green";
+        } catch (e) {
+            console.error("Erro ao salvar anotações no Local Storage:", e);
+            notesStatus.textContent = `Erro ao salvar: ${e.message}`;
+            notesStatus.style.color = "red";
+        } finally {
+            saveNotesButton.disabled = false; // Habilita o botão
+            // Limpa a mensagem de status após alguns segundos
+            setTimeout(() => {
+                notesStatus.textContent = "";
+            }, 3000);
         }
+    }
 
-        if (closeProfileButton && userProfileNav) {
-            closeProfileButton.addEventListener('click', () => {
-                userProfileNav.style.display = 'none';
-            });
-        }
-    });
+    // Adiciona o evento de clique ao botão "Salvar Anotações"
+    if (saveNotesButton && notesInputTarget && subjectSelect) { // Garante que estamos na página de anotações
+        saveNotesButton.addEventListener('click', () => {
+            const selectedSubject = subjectSelect.value;
+            saveNotesToLocalStorage(selectedSubject);
+        });
+    }
+});
