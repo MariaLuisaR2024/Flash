@@ -774,4 +774,14 @@ footer {
     .tox .tox-editor-container {
         min-height: 120px !important;
     }
+    /* Estilo para o link no rodapé */
+.footer-link {
+    text-decoration: none; /* Remove o sublinhado padrão do link */
+    color: var(--secondary-blue); /* Mantém a cor do texto do rodapé */
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary-blue); /* Mudar cor ao passar o mouse */
+}
 }
