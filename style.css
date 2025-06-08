@@ -601,7 +601,7 @@ h3 {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364B5F6'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364B5F6'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 20px;
@@ -774,14 +774,4 @@ footer {
     .tox .tox-editor-container {
         min-height: 120px !important;
     }
-    /* Estilo para o link no rodapé */
-.footer-link {
-    text-decoration: none; /* Remove o sublinhado padrão do link */
-    color: var(--secondary-blue); /* Mantém a cor do texto do rodapé */
-    transition: color 0.3s ease;
-}
-
-.footer-link:hover {
-    color: var(--primary-blue); /* Mudar cor ao passar o mouse */
-}
 }

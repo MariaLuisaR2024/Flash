@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Variável para armazenar o evento beforeinstallprompt para PWA
     let deferredPrompt;
 
+    // Listener para o evento beforeinstallprompt (para PWA)
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateFlashcardsButton = document.getElementById('generateFlashcardsButton');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // Elementos para a funcionalidade de Anotações/Bloco de Notas (agora com TinyMCE)
+    // Elementos para a funcionalidade de Anotações/Bloco de Notas (TinyMCE)
     const notesInputTarget = document.getElementById('tinymce-editor'); // Alvo para o TinyMCE
     const saveNotesButton = document.getElementById('saveNotesButton');
     const notesStatus = document.getElementById('notesStatus');
@@ -231,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tinymce.init({
             selector: '#tinymce-editor', // O ID do div que o TinyMCE vai transformar
             plugins: 'lists link image code autoresize fullscreen', // Plugins úteis para formatação
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link code | fullscreen',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignalignjustify | bullist numlist outdent indent | removeformat | link code | fullscreen',
             min_height: 300, // Altura mínima do editor
             setup: function (editor) {
                 editor.on('init', function () {

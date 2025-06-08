@@ -1,6 +1,6 @@
 const CACHE_NAME = 'mrstuudos-cache-v1';
 const urlsToCache = [
-    './',
+    './', // Raiz do seu site (importante para o GitHub Pages)
     './index.html',
     './materias.html',
     './biologia.html',
@@ -10,8 +10,8 @@ const urlsToCache = [
     './script.js',
     './logo.png',
     './ferrari.jpg',
-    './butterfly1.png',
-    './butterfly2.png',
+    './borboleta1.png',
+    './borboleta2.png',
     './biologia_icon.png',
     './matematica_icon.png',
     './fisica_icon.png',
@@ -28,7 +28,8 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('Opened cache');
-                return cache.addAll(urlsToCache);
+                // Use new URL(url, self.location.href).href para resolver caminhos relativos de forma robusta
+                return cache.addAll(urlsToCache.map(url => new URL(url, self.location.href).href));
             })
     );
 });

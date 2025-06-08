@@ -1,8 +1,8 @@
 {
   "name": "Mrstuudos Flashcards",
   "short_name": "Flashcards",
-  "description": "flashcards para estudo.",
-  "start_url": "/index.html",
+  "description": "Flashcards para estudo.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#E3F2FD",
   "theme_color": "#2196F3",
@@ -13,7 +13,7 @@
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-192.png",
       "sizes": "512x512",
       "type": "image/png"
     }
