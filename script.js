@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (materialCards.length > 0) {
         materialCards.forEach(card => {
             card.addEventListener('click', () => {
-                const subject = card.dataset.subject; // Pega o valor do atributo data-subject (ex: "biologia")
+                const subject = card.dataset.subject; // Pega o valor do atributo data-subject (ex: "biologia", "questoes")
                 if (subject) {
                     window.location.href = `${subject}.html`; // Redireciona para a página da matéria correspondente
                 }
@@ -38,10 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentFlashcardIndexSpan = document.getElementById('currentFlashcardIndex');
     const totalFlashcardsSpan = document.getElementById('totalFlashcards');
 
-    // Elementos para a funcionalidade de geração de flashcards
-    const topicInput = document.getElementById('topicInput');
+    // Elementos para a funcionalidade de geração de flashcards (em biologia.html)
+    const topicInputFlashcard = document.getElementById('topicInput'); // Renomeado para evitar conflito
     const generateFlashcardsButton = document.getElementById('generateFlashcardsButton');
-    const loadingIndicator = document.getElementById('loadingIndicator');
+    const loadingIndicatorFlashcard = document.getElementById('loadingIndicator'); // Renomeado para evitar conflito
 
     // Elementos para a funcionalidade de Anotações/Bloco de Notas (TinyMCE)
     const notesInputTarget = document.getElementById('tinymce-editor'); // Alvo para o TinyMCE
@@ -52,17 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tinyMCEEditorInstance = null; // Variável para armazenar a instância do TinyMCE
 
-    // Dados dos flashcards (você pode carregar isso de um JSON ou API em um app mais complexo)
+    // --- LÓGICA DE FLASHCARDS (biologia.html) ---
     let flashcardsData = [
-        // Flashcards de Biologia (Exemplo inicial)
         { question: "O que é mitose?", answer: "A mitose é um processo de divisão celular em que uma célula-mãe se divide em duas células-filhas geneticamente idênticas." },
         { question: "Qual a função do cloroplasto?", answer: "O cloroplasto é a organela responsável pela fotossíntese nas células vegetais." },
         { question: "O que é DNA?", answer: "DNA (ácido desoxirribonucleico) é a molécula que contém as instruções genéticas usadas no desenvolvimento e funcionamento de todos os organismos vivos." },
         { question: "Diferença entre célula procariótica e eucariótica?", answer: "Células procarióticas não possuem núcleo definido nem organelas membranosas. Células eucarióticas possuem núcleo e organelas membranosas, além de serem maiores." },
         { question: "O que são enzimas?", answer: "Enzimas são proteínas que atuam como catalisadores biológicos, acelerando reações químicas no corpo sem serem consumidas." }
     ];
-
-    let currentFlashcard = 0; // Índice do flashcard atual
+    let currentFlashcard = 0;
 
     // Função para atualizar o conteúdo do flashcard na tela
     function updateFlashcardDisplay() {
@@ -73,33 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
             front.textContent = flashcardsData[currentFlashcard].question;
             back.textContent = flashcardsData[currentFlashcard].answer;
 
-            // Atualiza o contador de flashcards
             currentFlashcardIndexSpan.textContent = currentFlashcard + 1;
             totalFlashcardsSpan.textContent = flashcardsData.length;
 
-            // Garante que o flashcard não esteja virado ao mudar para o próximo/anterior
             if (flashcardElement.classList.contains('flipped')) {
                 flashcardElement.classList.remove('flipped');
             }
         } else if (flashcardElement) {
-            // Se não houver flashcards, exibe uma mensagem
             flashcardElement.querySelector('.flashcard-front h3').textContent = "Nenhum flashcard disponível.";
             flashcardElement.querySelector('.flashcard-back p').textContent = "Gere novos flashcards ou adicione-os manualmente.";
             currentFlashcardIndexSpan.textContent = "0";
             totalFlashcardsSpan.textContent = "0";
-            flashcardElement.classList.remove('flipped'); // Garante que não esteja virado
+            flashcardElement.classList.remove('flipped');
         }
     }
 
-    // Função para gerar flashcards usando a API do Gemini
+    // Função para gerar flashcards (biologia.html)
     async function generateFlashcards(topic) {
         if (!topic) {
             console.warn("Nenhum tópico fornecido para gerar flashcards.");
             return;
         }
 
-        loadingIndicator.style.display = 'block'; // Mostra o spinner de carregamento
-        generateFlashcardsButton.disabled = true; // Desabilita o botão
+        loadingIndicatorFlashcard.style.display = 'block';
+        generateFlashcardsButton.disabled = true;
 
         let chatHistory = [];
         const prompt = `Gere 5 flashcards de pergunta e resposta sobre o tópico: "${topic}". Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves "question" e "answer". Certifique-se de que a resposta seja APENAS o JSON válido.`;
@@ -124,8 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const apiKey = "AIzaSyDVU4bicBfIf1UV85vBS6mEu9WMVyhCF7U"; // <-- COLE SUA CHAVE DE API AQUI para rodar localmente!
-        // No ambiente Canvas, você deixaria assim: const apiKey = "";
+        const apiKey = "AIzaSyDVU4bicBfIf1UV85vBS6mEu9WMVyhCF7U"; // <-- COLOQUE SUA CHAVE DE API AQUI!
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         try {
@@ -149,8 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newFlashcards = JSON.parse(jsonText);
 
                 if (Array.isArray(newFlashcards) && newFlashcards.every(fc => typeof fc.question === 'string' && typeof fc.answer === 'string')) {
-                    flashcardsData = newFlashcards; // Substitui os flashcards existentes
-                    currentFlashcard = 0; // Volta para o primeiro flashcard
+                    flashcardsData = newFlashcards;
+                    currentFlashcard = 0;
                     updateFlashcardDisplay();
                     console.log('Novos flashcards gerados e carregados!', newFlashcards);
                 } else {
@@ -165,57 +159,299 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erro ao chamar a API do Gemini:", error);
             alert(`Ocorreu um erro ao gerar os flashcards: ${error.message}. Verifique sua conexão ou tente novamente com um tópico mais simples.`);
         } finally {
-            loadingIndicator.style.display = 'none'; // Esconde o spinner
-            generateFlashcardsButton.disabled = false; // Habilita o botão novamente
+            loadingIndicatorFlashcard.style.display = 'none';
+            generateFlashcardsButton.disabled = false;
         }
     }
 
-    // Verifica se os elementos do flashcard existem antes de adicionar event listeners
     if (flashcardElement && flipButton && prevButton && nextButton) {
-        updateFlashcardDisplay(); // Inicializa o primeiro flashcard
-
-        flipButton.addEventListener('click', () => {
-            flashcardElement.classList.toggle('flipped');
-        });
-
-        nextButton.addEventListener('click', () => {
-            if (flashcardsData.length > 0) {
-                currentFlashcard = (currentFlashcard + 1) % flashcardsData.length;
-                updateFlashcardDisplay();
-            }
-        });
-
-        prevButton.addEventListener('click', () => {
-            if (flashcardsData.length > 0) {
-                currentFlashcard = (currentFlashcard - 1 + flashcardsData.length) % flashcardsData.length;
-                updateFlashcardDisplay();
-            }
-        });
+        updateFlashcardDisplay();
+        flipButton.addEventListener('click', () => { flashcardElement.classList.toggle('flipped'); });
+        nextButton.addEventListener('click', () => { if (flashcardsData.length > 0) { currentFlashcard = (currentFlashcard + 1) % flashcardsData.length; updateFlashcardDisplay(); } });
+        prevButton.addEventListener('click', () => { if (flashcardsData.length > 0) { currentFlashcard = (currentFlashcard - 1 + flashcardsData.length) % flashcardsData.length; updateFlashcardDisplay(); } });
     }
-
-    // Adiciona o evento de clique ao botão de gerar flashcards
-    if (generateFlashcardsButton && topicInput) {
+    if (generateFlashcardsButton && topicInputFlashcard) {
         generateFlashcardsButton.addEventListener('click', () => {
-            const topic = topicInput.value.trim();
-            if (topic) {
-                generateFlashcards(topic);
-            } else {
-                alert("Por favor, digite um tópico para gerar flashcards.");
-            }
+            const topic = topicInputFlashcard.value.trim();
+            if (topic) { generateFlashcards(topic); } else { alert("Por favor, digite um tópico para gerar flashcards."); }
         });
     }
 
-    // Lógica da logo clicável e perfil do usuário (em todas as páginas com a logo clicável)
+
+    // --- LÓGICA DE QUESTÕES DE VESTIBULAR (questoes.html) ---
+    const questionContainer = document.querySelector('.question-container');
+    const questionTextElement = document.getElementById('questionText');
+    const alternativesListElement = document.getElementById('alternativesList');
+    const feedbackArea = document.querySelector('.feedback-area');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const explanationBox = document.getElementById('explanationBox');
+    const explanationText = document.getElementById('explanationText');
+    const showAnswerButton = document.getElementById('showAnswerButton');
+    const nextQuestionButton = document.getElementById('nextQuestionButton');
+    const currentQuestionIndexDisplay = document.getElementById('currentQuestionIndexDisplay');
+    const totalQuestionsDisplay = document.getElementById('totalQuestionsDisplay');
+    const questionTopicInput = document.getElementById('questionTopicInput');
+    const generateNewQuestionsButton = document.getElementById('generateNewQuestionsButton');
+    const questionLoadingIndicator = document.getElementById('questionLoadingIndicator');
+    const correctCountDisplay = document.getElementById('correctCount');
+    const totalAttemptedDisplay = document.getElementById('totalAttempted');
+    const noQuestionsMessage = document.getElementById('noQuestionsMessage');
+
+    let questionsData = []; // Armazenará as questões geradas
+    let currentQuestionIndex = 0;
+    let correctAnswersCount = 0;
+    let totalAttemptedQuestions = 0;
+    let currentQuestionAnswered = false; // Flag para controlar se a questão atual já foi respondida
+
+    // Função para embaralhar um array (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Função para exibir a questão atual
+    function displayQuestion() {
+        if (!questionContainer || questionsData.length === 0) {
+            questionContainer.style.display = 'none';
+            noQuestionsMessage.style.display = 'block';
+            noQuestionsMessage.textContent = "Clique em 'Gerar Novas Questões' para começar!";
+            return;
+        }
+
+        questionContainer.style.display = 'block';
+        noQuestionsMessage.style.display = 'none';
+
+        const currentQuestion = questionsData[currentQuestionIndex];
+        questionTextElement.innerHTML = currentQuestion.question; // Usar innerHTML para tags HTML
+
+        alternativesListElement.innerHTML = ''; // Limpa alternativas anteriores
+        feedbackArea.style.display = 'none'; // Esconde feedback
+        explanationBox.style.display = 'none'; // Esconde explicação
+
+        // Embaralha as alternativas para cada questão
+        const shuffledAlternatives = shuffleArray([...currentQuestion.alternatives]);
+        
+        shuffledAlternatives.forEach((alt, index) => {
+            const button = document.createElement('button');
+            button.className = 'alternative-button';
+            // Armazena o índice original da alternativa correta no data-correct-index
+            const originalIndex = currentQuestion.alternatives.indexOf(currentQuestion.correctAnswer);
+            // Verifica se esta alternativa é a correta
+            if (alt === currentQuestion.correctAnswer) {
+                button.dataset.correctIndex = originalIndex; // Guarda o índice original da correta
+            }
+            button.dataset.chosenIndex = index; // Guarda o índice da alternativa embaralhada (para o clique)
+            button.innerHTML = `${String.fromCharCode(65 + index)}. ${alt}`; // A, B, C...
+            button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswer, currentQuestion.explanation));
+            alternativesListElement.appendChild(button);
+        });
+
+        currentQuestionIndexDisplay.textContent = currentQuestionIndex + 1;
+        totalQuestionsDisplay.textContent = questionsData.length;
+        
+        currentQuestionAnswered = false; // Reseta flag para a nova questão
+        showAnswerButton.style.display = 'block'; // Mostra o botão "Mostrar Resposta"
+        enableAlternatives(); // Habilita os botões de alternativa
+    }
+
+    // Função para verificar a resposta
+    function checkAnswer(chosenButton, correctAnswer, explanation) {
+        if (currentQuestionAnswered) return; // Impede múltiplos cliques
+
+        currentQuestionAnswered = true; // Marca a questão como respondida
+        totalAttemptedQuestions++; // Incrementa o contador de questões tentadas
+
+        const allAlternativeButtons = alternativesListElement.querySelectorAll('.alternative-button');
+        let isCorrect = false;
+
+        allAlternativeButtons.forEach(button => {
+            if (button === chosenButton) {
+                // Marca a alternativa escolhida
+                button.classList.add('selected');
+                if (button.innerHTML.includes(correctAnswer)) { // Verifica se o texto da alternativa corresponde à correta
+                    button.classList.add('correct');
+                    isCorrect = true;
+                    correctAnswersCount++; // Incrementa acertos
+                    feedbackMessage.textContent = "Certo!";
+                    feedbackMessage.className = 'feedback-message correct';
+                } else {
+                    button.classList.add('incorrect');
+                    feedbackMessage.textContent = "Errado!";
+                    feedbackMessage.className = 'feedback-message incorrect';
+                }
+            }
+            // Revela a alternativa correta após a resposta
+            if (button.innerHTML.includes(correctAnswer) && button !== chosenButton) {
+                button.classList.add('correct');
+            }
+            button.disabled = true; // Desabilita todos os botões após a resposta
+        });
+
+        updatePerformanceCounter();
+        displayFeedback(explanation);
+        showAnswerButton.style.display = 'none'; // Esconde o botão "Mostrar Resposta" após responder
+    }
+
+    // Função para mostrar a resposta sem responder
+    function showAnswer() {
+        if (currentQuestionAnswered) return; // Se já respondeu, não faz nada
+        currentQuestionAnswered = true; // Marca como respondida para desabilitar alternativas
+
+        const allAlternativeButtons = alternativesListElement.querySelectorAll('.alternative-button');
+        const currentQuestion = questionsData[currentQuestionIndex];
+
+        allAlternativeButtons.forEach(button => {
+            if (button.innerHTML.includes(currentQuestion.correctAnswer)) {
+                button.classList.add('correct'); // Marca a correta
+            }
+            button.disabled = true; // Desabilita todas
+        });
+        feedbackMessage.textContent = "Resposta revelada!";
+        feedbackMessage.className = 'feedback-message info';
+        displayFeedback(currentQuestion.explanation);
+        showAnswerButton.style.display = 'none'; // Esconde o botão "Mostrar Resposta"
+    }
+
+    // Habilita as alternativas
+    function enableAlternatives() {
+        const allAlternativeButtons = alternativesListElement.querySelectorAll('.alternative-button');
+        allAlternativeButtons.forEach(button => {
+            button.disabled = false;
+            button.classList.remove('selected', 'correct', 'incorrect');
+        });
+    }
+
+    // Exibe a área de feedback
+    function displayFeedback(explanation) {
+        feedbackArea.style.display = 'block';
+        explanationText.innerHTML = explanation;
+        explanationBox.style.display = 'block';
+    }
+
+    // Atualiza o contador de desempenho
+    function updatePerformanceCounter() {
+        correctCountDisplay.textContent = correctAnswersCount;
+        totalAttemptedDisplay.textContent = totalAttemptedQuestions;
+    }
+
+    // Função para avançar para a próxima questão
+    function nextQuestion() {
+        if (questionsData.length === 0) return;
+
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= questionsData.length) {
+            currentQuestionIndex = 0; // Reinicia se chegar ao fim
+            alert("Fim das questões! Reiniciando a sessão. Se desejar novas questões, gere mais.");
+            correctAnswersCount = 0; // Reinicia o contador de acertos
+            totalAttemptedQuestions = 0; // Reinicia o contador de tentativas
+            updatePerformanceCounter(); // Atualiza o display do contador
+        }
+        displayQuestion();
+    }
+
+    // Função para gerar questões de múltipla escolha usando a API do Gemini
+    async function generateMultipleChoiceQuestions(topic) {
+        questionLoadingIndicator.style.display = 'block';
+        generateNewQuestionsButton.disabled = true;
+        questionContainer.style.display = 'none'; // Esconde container de questões
+        noQuestionsMessage.style.display = 'block';
+        noQuestionsMessage.textContent = "Gerando novas questões, por favor aguarde...";
+
+
+        let chatHistory = [];
+        const prompt = `Gere 5 questões de múltipla escolha de vestibular (formato ENEM, Fuvest, Unicamp, Unesp) sobre o tópico "${topic || 'conhecimentos gerais'}", cada uma com um enunciado claro, 5 alternativas (A, B, C, D, E) sendo apenas uma correta, e uma explicação detalhada da resposta correta. Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves "question" (string), "alternatives" (array de strings com 5 elementos), "correctAnswer" (string, o texto da alternativa correta) e "explanation" (string). Certifique-se de que a resposta seja APENAS o JSON válido.`;
+        
+        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+        
+        const payload = {
+            contents: chatHistory,
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            "question": { "type": "STRING" },
+                            "alternatives": { "type": "ARRAY", "items": { "type": "STRING" } },
+                            "correctAnswer": { "type": "STRING" },
+                            "explanation": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["question", "alternatives", "correctAnswer", "explanation"]
+                    }
+                }
+            }
+        };
+
+        const apiKey = "AIzaSyDVU4bicBfIf1UV85vBS6mEu9WMVyhCF7U"; // <-- COLOQUE SUA CHAVE DE API AQUI!
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erro de rede ou API: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const newQuestions = JSON.parse(jsonText);
+
+                if (Array.isArray(newQuestions) && newQuestions.every(q => q.question && Array.isArray(q.alternatives) && q.alternatives.length === 5 && q.correctAnswer && q.explanation)) {
+                    questionsData = newQuestions;
+                    currentQuestionIndex = 0;
+                    correctAnswersCount = 0;
+                    totalAttemptedQuestions = 0;
+                    updatePerformanceCounter();
+                    displayQuestion();
+                    console.log('Novas questões geradas e carregadas!', newQuestions);
+                } else {
+                    console.error("Formato inesperado da resposta do LLM:", newQuestions);
+                    alert("Erro: O LLM não gerou as questões no formato esperado. Tente um tópico mais simples ou geral.");
+                    questionContainer.style.display = 'none';
+                    noQuestionsMessage.textContent = "Erro ao carregar questões. Tente novamente com um tópico diferente.";
+                }
+            } else {
+                console.error("Resposta inválida da API do Gemini:", result);
+                alert("Erro ao gerar questões: Resposta vazia ou inválida da API.");
+                questionContainer.style.display = 'none';
+                noQuestionsMessage.textContent = "Erro ao gerar questões. Resposta vazia ou inválida.";
+            }
+        } catch (error) {
+            console.error("Erro ao chamar a API do Gemini:", error);
+            alert(`Ocorreu um erro ao gerar as questões: ${error.message}. Verifique sua conexão ou tente novamente.`);
+            questionContainer.style.display = 'none';
+            noQuestionsMessage.textContent = "Erro ao gerar questões. Verifique sua conexão e tente novamente.";
+        } finally {
+            questionLoadingIndicator.style.display = 'none';
+            generateNewQuestionsButton.disabled = false;
+        }
+    }
+
+
+    // --- LISTENERS GERAIS (para todas as páginas) ---
+    // Lógica da logo clicável e perfil do usuário
     const clickableLogo = document.querySelector('.clickable-logo');
     const userProfileNav = document.querySelector('.user-profile-nav');
     const closeProfileButton = document.querySelector('.close-profile');
     
-    // O perfil do usuário agora é estático.
     const userInfoClickableArea = clickableLogo; 
 
     if (userInfoClickableArea && userProfileNav) {
         userInfoClickableArea.addEventListener('click', () => {
-            userProfileNav.style.display = userProfileNav.style.display === 'none' ? 'block' : 'none'; // 'block' para display padrão
+            userProfileNav.style.display = userProfileNav.style.display === 'none' ? 'block' : 'none'; 
         });
     }
 
@@ -225,21 +461,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- FUNÇÕES DE ANOTAÇÕES COM LOCAL STORAGE E TINYMCE ---
 
+    // --- LÓGICA DE ANOTAÇÕES COM LOCAL STORAGE E TINYMCE (anotacoes.html) ---
     // Inicializa o TinyMCE se o elemento alvo estiver presente (ou seja, estamos em anotacoes.html)
     if (notesInputTarget) {
         tinymce.init({
-            selector: '#tinymce-editor', // O ID do div que o TinyMCE vai transformar
-            plugins: 'lists link image code autoresize fullscreen', // Plugins úteis para formatação
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignalignjustify | bullist numlist outdent indent | removeformat | link code | fullscreen',
-            min_height: 300, // Altura mínima do editor
+            selector: '#tinymce-editor', 
+            plugins: 'lists link image code autoresize fullscreen',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignjustify | bullist numlist outdent indent | removeformat | link code | fullscreen',
+            min_height: 300,
             setup: function (editor) {
                 editor.on('init', function () {
                     console.log('TinyMCE initialized.');
-                    tinyMCEEditorInstance = editor; // Armazena a instância do editor
+                    tinyMCEEditorInstance = editor;
 
-                    // Carrega as anotações assim que o editor estiver pronto e a matéria selecionada
                     if (subjectSelect) {
                         const initialSubject = subjectSelect.value;
                         if (currentNotesSubjectDisplay) {
@@ -247,11 +482,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         loadNotesFromLocalStorage(initialSubject);
 
-                        // Adiciona um listener para quando a seleção da matéria muda
                         subjectSelect.addEventListener('change', () => {
                             const selectedSubject = subjectSelect.value;
                             loadNotesFromLocalStorage(selectedSubject);
-                            // Atualiza o título do notes area
                             if (currentNotesSubjectDisplay) {
                                 currentNotesSubjectDisplay.textContent = subjectSelect.options[subjectSelect.selectedIndex].text;
                             }
@@ -262,47 +495,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     // Função para carregar anotações do Local Storage
     function loadNotesFromLocalStorage(subject) {
-        // Verifica se o editor TinyMCE está pronto
         if (!tinyMCEEditorInstance || !notesStatus) {
             console.log("TinyMCE editor ou status de notas não prontos para carregar.");
             return;
         }
-
         const storageKey = `mrstuudos_notes_${subject}`;
         const savedNotes = localStorage.getItem(storageKey);
-
         if (savedNotes) {
-            tinyMCEEditorInstance.setContent(savedNotes); // Define o conteúdo do editor
+            tinyMCEEditorInstance.setContent(savedNotes);
             notesStatus.textContent = `Anotações carregadas para ${subject}!`;
             notesStatus.style.color = "green";
         } else {
-            tinyMCEEditorInstance.setContent(""); // Limpa o editor
+            tinyMCEEditorInstance.setContent("");
             notesStatus.textContent = `Nenhuma anotação salva para ${subject} ainda.`;
             notesStatus.style.color = "orange";
         }
-        // Limpa a mensagem de status após alguns segundos
-        setTimeout(() => {
-            notesStatus.textContent = "";
-        }, 3000);
+        setTimeout(() => { notesStatus.textContent = ""; }, 3000);
     }
 
     // Função para salvar anotações no Local Storage
     function saveNotesToLocalStorage(subject) {
-        // Verifica se o editor TinyMCE está pronto
         if (!tinyMCEEditorInstance || !notesStatus || !saveNotesButton) {
             console.log("TinyMCE editor ou status de notas não prontos para salvar.");
             return;
         }
-
         const storageKey = `mrstuudos_notes_${subject}`;
-        const notesContent = tinyMCEEditorInstance.getContent(); // Pega o conteúdo HTML do editor
+        const notesContent = tinyMCEEditorInstance.getContent();
         
         notesStatus.textContent = "Salvando...";
         notesStatus.style.color = "gray";
-        saveNotesButton.disabled = true; // Desabilita o botão enquanto salva
+        saveNotesButton.disabled = true;
 
         try {
             localStorage.setItem(storageKey, notesContent);
@@ -313,19 +537,40 @@ document.addEventListener('DOMContentLoaded', () => {
             notesStatus.textContent = `Erro ao salvar: ${e.message}`;
             notesStatus.style.color = "red";
         } finally {
-            saveNotesButton.disabled = false; // Habilita o botão
-            // Limpa a mensagem de status após alguns segundos
-            setTimeout(() => {
-                notesStatus.textContent = "";
-            }, 3000);
+            saveNotesButton.disabled = false;
+            setTimeout(() => { notesStatus.textContent = ""; }, 3000);
         }
     }
 
     // Adiciona o evento de clique ao botão "Salvar Anotações"
-    if (saveNotesButton && notesInputTarget && subjectSelect) { // Garante que estamos na página de anotações
+    if (saveNotesButton && notesInputTarget && subjectSelect) {
         saveNotesButton.addEventListener('click', () => {
             const selectedSubject = subjectSelect.value;
             saveNotesToLocalStorage(selectedSubject);
         });
+    }
+
+
+    // --- LISTENERS DA PÁGINA DE QUESTÕES (questoes.html) ---
+    // Garante que os listeners só sejam adicionados se os elementos existirem
+    if (questionContainer && generateNewQuestionsButton) {
+        // Listener para o botão de gerar novas questões
+        generateNewQuestionsButton.addEventListener('click', () => {
+            const topic = questionTopicInput.value.trim();
+            generateMultipleChoiceQuestions(topic);
+        });
+
+        // Listener para o botão "Mostrar Resposta"
+        showAnswerButton.addEventListener('click', showAnswer);
+
+        // Listener para o botão "Próxima Questão"
+        nextQuestionButton.addEventListener('click', nextQuestion);
+    }
+
+    // Exibe a mensagem inicial se não houver questões
+    if (questionContainer && questionsData.length === 0) {
+        questionContainer.style.display = 'none';
+        noQuestionsMessage.style.display = 'block';
+        noQuestionsMessage.textContent = "Clique em 'Gerar Novas Questões' para começar!";
     }
 });

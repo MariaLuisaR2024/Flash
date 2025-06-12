@@ -8,6 +8,11 @@
     --light-text: #FFFFFF;
     --card-bg: #FFFFFF;
     --shadow-color: rgba(0, 0, 0, 0.2);
+
+    /* Cores de feedback */
+    --correct-color: #28a745; /* Verde para certo */
+    --incorrect-color: #dc3545; /* Vermelho para errado */
+    --info-color: #007bff; /* Azul para info */
 }
 
 body {
@@ -282,7 +287,7 @@ h3 {
 }
 
 /* Páginas */
-.welcome-page, .materials-page, .flashcard-page, .notes-page-container {
+.welcome-page, .materials-page, .flashcard-page, .notes-page-container, .questions-page-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -634,6 +639,165 @@ footer {
     width: 100%;
 }
 
+/* Estilos para a nova página de questões */
+.questions-page-container .questions-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    flex-grow: 1;
+    justify-content: flex-start; /* Alinha ao topo */
+    margin-top: 20px;
+}
+
+.questions-page-container h2 {
+    margin-bottom: 30px;
+}
+
+.performance-counter {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+}
+
+.question-container {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
+    text-align: left;
+    margin-bottom: 30px;
+    border: 1px solid var(--light-pastel);
+}
+
+.question-box {
+    margin-bottom: 25px;
+    font-size: 1.15em;
+    line-height: 1.6;
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+.alternatives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.alternative-button {
+    background-color: var(--light-pastel);
+    color: var(--dark-text);
+    padding: 12px 15px;
+    border: 1px solid var(--secondary-blue);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+}
+
+.alternative-button:hover:not(.selected):not(.correct):not(.incorrect) {
+    background-color: #f0f8ff; /* Um azul pastel mais claro */
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.alternative-button.selected {
+    border-width: 2px;
+    font-weight: bold;
+}
+
+.alternative-button.correct {
+    background-color: var(--correct-color);
+    color: var(--light-text);
+    border-color: var(--correct-color);
+    font-weight: bold;
+}
+
+.alternative-button.incorrect {
+    background-color: var(--incorrect-color);
+    color: var(--light-text);
+    border-color: var(--incorrect-color);
+    font-weight: bold;
+}
+
+.feedback-area {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 700px;
+    text-align: left;
+}
+
+.feedback-message {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.feedback-message.correct {
+    color: var(--correct-color);
+}
+
+.feedback-message.incorrect {
+    color: var(--incorrect-color);
+}
+
+.explanation-box {
+    background-color: rgba(0, 123, 255, 0.1); /* Azul claro */
+    padding: 15px;
+    border-left: 4px solid var(--info-color);
+    border-radius: 8px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin-top: 15px;
+}
+
+.explanation-box h3 {
+    color: var(--info-color);
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    text-align: left; /* Alinhar o h3 da explicação à esquerda */
+}
+
+
+.question-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.question-counter {
+    font-size: 1em;
+    color: var(--secondary-blue);
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.no-questions-message {
+    font-size: 1.2em;
+    color: var(--dark-text);
+    margin-top: 50px;
+}
+
+
+/* Footer */
+footer {
+    margin-top: auto;
+    padding-top: 25px;
+    border-top: 2px solid var(--light-pastel);
+    color: var(--secondary-blue);
+    font-size: 0.9em;
+    width: 100%;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .container {
@@ -711,6 +875,10 @@ footer {
         align-items: flex-start;
         gap: 10px;
     }
+
+    .question-container {
+        padding: 20px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -773,5 +941,13 @@ footer {
     /* Estilos para o editor TinyMCE em telas muito pequenas */
     .tox .tox-editor-container {
         min-height: 120px !important;
+    }
+
+    .question-box {
+        font-size: 1em;
+    }
+
+    .alternative-button {
+        font-size: 0.9em;
     }
 }

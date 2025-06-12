@@ -1,8 +1,8 @@
 {
   "name": "Mrstuudos Flashcards",
-  "short_name": "Flashcards",
+  "short_name": "Flash",
   "description": "Flashcards para estudo.",
-  "start_url": "./index.html",
+  "start_url": "/https://marialuisar2024.github.io/Flash/",
   "display": "standalone",
   "background_color": "#E3F2FD",
   "theme_color": "#2196F3",
