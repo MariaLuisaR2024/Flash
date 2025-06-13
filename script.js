@@ -233,15 +233,21 @@ document.addEventListener('DOMContentLoaded', () => {
         explanationBox.style.display = 'none'; // Esconde explicação
 
         // Cria uma cópia das alternativas e embaralha
-        const shuffledAlternatives = shuffleArray([...currentQuestion.alternatives]);
+        // Guarda a referência original para associar a letra correta
+        const alternativesWithLetters = currentQuestion.alternatives.map((text, idx) => ({
+            text: text,
+            originalLetter: String.fromCharCode(65 + idx) // A, B, C, D, E
+        }));
+
+        const shuffledAlternatives = shuffleArray(alternativesWithLetters);
         
-        shuffledAlternatives.forEach((altText, index) => {
+        shuffledAlternatives.forEach((alt, index) => {
             const button = document.createElement('button');
-            const letter = String.fromCharCode(65 + index); // A, B, C, D, E
+            const displayLetter = String.fromCharCode(65 + index); // A, B, C, D, E para exibição
             button.className = 'alternative-button';
-            button.dataset.letter = letter; // Armazena a letra (A, B, C...)
-            button.dataset.originalText = altText; // Armazena o texto original da alternativa
-            button.innerHTML = `${letter}. ${altText}`;
+            button.dataset.displayLetter = displayLetter; // Letra que será exibida no botão
+            button.dataset.originalLetter = alt.originalLetter; // <--- NOVO: Letra original da alternativa no modelo (A, B, C...)
+            button.innerHTML = `${displayLetter}. ${alt.text}`;
             
             // Adiciona o evento de clique para verificar a resposta
             button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswerLetter, currentQuestion.explanation));
@@ -267,15 +273,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let isCorrect = false;
 
         allAlternativeButtons.forEach(button => {
-            // Se o botão clicado for a alternativa correta (pela letra)
-            if (button.dataset.letter === correctAnswerLetter) {
+            // Verifica se este botão é a alternativa CORRETA (pela letra original do modelo)
+            if (button.dataset.originalLetter === correctAnswerLetter) { // <--- CORREÇÃO AQUI
                 button.classList.add('correct'); // Marca a correta com verde
             }
 
             if (button === chosenButton) { // Se for o botão que o usuário clicou
                 button.classList.add('selected'); // Marca a escolha do usuário
 
-                if (chosenButton.dataset.letter === correctAnswerLetter) {
+                // Verifica se a alternativa clicada (pela sua letra original) é a correta
+                if (chosenButton.dataset.originalLetter === correctAnswerLetter) { // <--- CORREÇÃO AQUI
                     isCorrect = true;
                     correctAnswersCount++;
                     feedbackMessage.textContent = "Certo!";
@@ -283,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     feedbackMessage.textContent = "Errado!";
                     feedbackMessage.className = 'feedback-message incorrect';
+                    chosenButton.classList.add('incorrect'); // Marca a escolhida incorreta em vermelho
                 }
             }
             button.disabled = true; // Desabilita todos os botões após a resposta
@@ -302,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentQuestion = questionsData[currentQuestionIndex];
 
         allAlternativeButtons.forEach(button => {
-            if (button.dataset.letter === currentQuestion.correctAnswerLetter) {
+            if (button.dataset.originalLetter === currentQuestion.correctAnswerLetter) { // <--- CORREÇÃO AQUI
                 button.classList.add('correct'); // Marca a correta
             }
             button.disabled = true; // Desabilita todas
@@ -363,13 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // PROMPT ATUALIZADO: Pedindo a letra da resposta correta e enfatizando coerência
         const prompt = `Gere 5 questões de múltipla escolha de vestibular (formato ENEM, Fuvest, Unicamp, Unesp) sobre o tópico "${topic || 'conhecimentos gerais'}", cada uma com:
         - um enunciado claro
-        - 5 alternativas (A, B, C, D, E)
-        - apenas uma correta
-        - o atributo 'correctAnswerLetter' com a letra correta (A, B, C, D ou E)
-        - uma explicação detalhada e CONCISA da resposta correta que seja totalmente COERENTE com a alternativa correta.
+        - 5 alternativas (A, B, C, D, E). 
+        - apenas uma alternativa correta.
+        - o atributo 'correctAnswerLetter' (string) com a letra da alternativa correta (A, B, C, D ou E)
+        - uma explicação detalhada e CONCISA da resposta correta que seja totalmente COERENTE e JUSTIFIQUE a alternativa correta (com a LETRA da alternativa).
         Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves:
         "question" (string),
-        "alternatives" (array de strings com 5 elementos),
+        "alternatives" (array de strings com 5 elementos, ex: ["A) Texto...", "B) Texto..."]),
         "correctAnswerLetter" (string, a LETRA da alternativa correta, ex: "A", "B", "C", "D" ou "E"),
         "explanation" (string).
         Certifique-se de que a resposta seja APENAS o JSON válido.`;
