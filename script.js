@@ -52,8 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tinyMCEEditorInstance = null; // Variável para armazenar a instância do TinyMCE
 
-    // --- LÓGICA DE FLASHCARDS (biologia.html) ---
+    // Dados dos flashcards (você pode carregar isso de um JSON ou API em um app mais complexo)
     let flashcardsData = [
+        // Flashcards de Biologia (Exemplo inicial)
         { question: "O que é mitose?", answer: "A mitose é um processo de divisão celular em que uma célula-mãe se divide em duas células-filhas geneticamente idênticas." },
         { question: "Qual a função do cloroplasto?", answer: "O cloroplasto é a organela responsável pela fotossíntese nas células vegetais." },
         { question: "O que é DNA?", answer: "DNA (ácido desoxirribonucleico) é a molécula que contém as instruções genéticas usadas no desenvolvimento e funcionamento de todos os organismos vivos." },
@@ -231,21 +232,19 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackArea.style.display = 'none'; // Esconde feedback
         explanationBox.style.display = 'none'; // Esconde explicação
 
-        // Embaralha as alternativas para cada questão
+        // Cria uma cópia das alternativas e embaralha
         const shuffledAlternatives = shuffleArray([...currentQuestion.alternatives]);
         
-        shuffledAlternatives.forEach((alt, index) => {
+        shuffledAlternatives.forEach((altText, index) => {
             const button = document.createElement('button');
+            const letter = String.fromCharCode(65 + index); // A, B, C, D, E
             button.className = 'alternative-button';
-            // Armazena o índice original da alternativa correta no data-correct-index
-            const originalIndex = currentQuestion.alternatives.indexOf(currentQuestion.correctAnswer);
-            // Verifica se esta alternativa é a correta
-            if (alt === currentQuestion.correctAnswer) {
-                button.dataset.correctIndex = originalIndex; // Guarda o índice original da correta
-            }
-            button.dataset.chosenIndex = index; // Guarda o índice da alternativa embaralhada (para o clique)
-            button.innerHTML = `${String.fromCharCode(65 + index)}. ${alt}`; // A, B, C...
-            button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswer, currentQuestion.explanation));
+            button.dataset.letter = letter; // Armazena a letra (A, B, C...)
+            button.dataset.originalText = altText; // Armazena o texto original da alternativa
+            button.innerHTML = `${letter}. ${altText}`;
+            
+            // Adiciona o evento de clique para verificar a resposta
+            button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswerLetter, currentQuestion.explanation));
             alternativesListElement.appendChild(button);
         });
 
@@ -258,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Função para verificar a resposta
-    function checkAnswer(chosenButton, correctAnswer, explanation) {
+    function checkAnswer(chosenButton, correctAnswerLetter, explanation) {
         if (currentQuestionAnswered) return; // Impede múltiplos cliques
 
         currentQuestionAnswered = true; // Marca a questão como respondida
@@ -268,24 +267,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let isCorrect = false;
 
         allAlternativeButtons.forEach(button => {
-            if (button === chosenButton) {
-                // Marca a alternativa escolhida
-                button.classList.add('selected');
-                if (button.innerHTML.includes(correctAnswer)) { // Verifica se o texto da alternativa corresponde à correta
-                    button.classList.add('correct');
+            // Se o botão clicado for a alternativa correta (pela letra)
+            if (button.dataset.letter === correctAnswerLetter) {
+                button.classList.add('correct'); // Marca a correta com verde
+            }
+
+            if (button === chosenButton) { // Se for o botão que o usuário clicou
+                button.classList.add('selected'); // Marca a escolha do usuário
+
+                if (chosenButton.dataset.letter === correctAnswerLetter) {
                     isCorrect = true;
-                    correctAnswersCount++; // Incrementa acertos
+                    correctAnswersCount++;
                     feedbackMessage.textContent = "Certo!";
                     feedbackMessage.className = 'feedback-message correct';
                 } else {
-                    button.classList.add('incorrect');
                     feedbackMessage.textContent = "Errado!";
                     feedbackMessage.className = 'feedback-message incorrect';
                 }
-            }
-            // Revela a alternativa correta após a resposta
-            if (button.innerHTML.includes(correctAnswer) && button !== chosenButton) {
-                button.classList.add('correct');
             }
             button.disabled = true; // Desabilita todos os botões após a resposta
         });
@@ -304,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentQuestion = questionsData[currentQuestionIndex];
 
         allAlternativeButtons.forEach(button => {
-            if (button.innerHTML.includes(currentQuestion.correctAnswer)) {
+            if (button.dataset.letter === currentQuestion.correctAnswerLetter) {
                 button.classList.add('correct'); // Marca a correta
             }
             button.disabled = true; // Desabilita todas
@@ -347,9 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Fim das questões! Reiniciando a sessão. Se desejar novas questões, gere mais.");
             correctAnswersCount = 0; // Reinicia o contador de acertos
             totalAttemptedQuestions = 0; // Reinicia o contador de tentativas
-            updatePerformanceCounter(); // Atualiza o display do contador
         }
         displayQuestion();
+        updatePerformanceCounter(); // Atualiza o display do contador
     }
 
     // Função para gerar questões de múltipla escolha usando a API do Gemini
@@ -362,7 +360,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         let chatHistory = [];
-        const prompt = `Gere 5 questões de múltipla escolha de vestibular (formato ENEM, Fuvest, Unicamp, Unesp) sobre o tópico "${topic || 'conhecimentos gerais'}", cada uma com um enunciado claro, 5 alternativas (A, B, C, D, E) sendo apenas uma correta, e uma explicação detalhada da resposta correta. Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves "question" (string), "alternatives" (array de strings com 5 elementos), "correctAnswer" (string, o texto da alternativa correta) e "explanation" (string). Certifique-se de que a resposta seja APENAS o JSON válido.`;
+        // PROMPT ATUALIZADO: Pedindo a letra da resposta correta e enfatizando coerência
+        const prompt = `Gere 5 questões de múltipla escolha de vestibular (formato ENEM, Fuvest, Unicamp, Unesp) sobre o tópico "${topic || 'conhecimentos gerais'}", cada uma com:
+        - um enunciado claro
+        - 5 alternativas (A, B, C, D, E)
+        - apenas uma correta
+        - o atributo 'correctAnswerLetter' com a letra correta (A, B, C, D ou E)
+        - uma explicação detalhada e CONCISA da resposta correta que seja totalmente COERENTE com a alternativa correta.
+        Forneça a resposta em formato JSON como um array de objetos, onde cada objeto tem as chaves:
+        "question" (string),
+        "alternatives" (array de strings com 5 elementos),
+        "correctAnswerLetter" (string, a LETRA da alternativa correta, ex: "A", "B", "C", "D" ou "E"),
+        "explanation" (string).
+        Certifique-se de que a resposta seja APENAS o JSON válido.`;
         
         chatHistory.push({ role: "user", parts: [{ text: prompt }] });
         
@@ -377,10 +387,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         properties: {
                             "question": { "type": "STRING" },
                             "alternatives": { "type": "ARRAY", "items": { "type": "STRING" } },
-                            "correctAnswer": { "type": "STRING" },
+                            "correctAnswerLetter": { "type": "STRING" }, // Mudou para Letter
                             "explanation": { "type": "STRING" }
                         },
-                        "propertyOrdering": ["question", "alternatives", "correctAnswer", "explanation"]
+                        "propertyOrdering": ["question", "alternatives", "correctAnswerLetter", "explanation"]
                     }
                 }
             }
@@ -409,7 +419,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jsonText = result.candidates[0].content.parts[0].text;
                 const newQuestions = JSON.parse(jsonText);
 
-                if (Array.isArray(newQuestions) && newQuestions.every(q => q.question && Array.isArray(q.alternatives) && q.alternatives.length === 5 && q.correctAnswer && q.explanation)) {
+                // Validação mais rigorosa para o formato da questão
+                if (Array.isArray(newQuestions) && 
+                    newQuestions.every(q => 
+                        typeof q.question === 'string' && 
+                        Array.isArray(q.alternatives) && q.alternatives.length === 5 && 
+                        typeof q.correctAnswerLetter === 'string' && q.correctAnswerLetter.length === 1 && 'ABCDE'.includes(q.correctAnswerLetter.toUpperCase()) &&
+                        typeof q.explanation === 'string'
+                    )
+                ) {
                     questionsData = newQuestions;
                     currentQuestionIndex = 0;
                     correctAnswersCount = 0;
@@ -419,9 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Novas questões geradas e carregadas!', newQuestions);
                 } else {
                     console.error("Formato inesperado da resposta do LLM:", newQuestions);
-                    alert("Erro: O LLM não gerou as questões no formato esperado. Tente um tópico mais simples ou geral.");
+                    alert("Erro: O LLM não gerou as questões no formato esperado. Tente um tópico mais simples ou geral e verifique o console para detalhes.");
                     questionContainer.style.display = 'none';
-                    noQuestionsMessage.textContent = "Erro ao carregar questões. Tente novamente com um tópico diferente.";
+                    noQuestionsMessage.textContent = "Erro ao carregar questões. Formato inválido. Tente novamente com um tópico diferente.";
                 }
             } else {
                 console.error("Resposta inválida da API do Gemini:", result);
